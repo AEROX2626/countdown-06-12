@@ -6,28 +6,18 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Calculate Target Date: Upcoming Sunday at 22:00 (Marina Herzliya)
-  function getTargetDate() {
-    const now = new Date();
-    // Specific date for this upcoming Sunday: October 25, 2026 at 22:00
-    const specificTarget = new Date(2026, 9, 25, 22, 0, 0, 0); // Month is 0-indexed (9 = Oct)
+  // 1. Calculate Target Date (December 6)
+  const now = new Date();
+  let currentYear = now.getFullYear();
+  let targetDate = new Date(currentYear, 11, 6, 0, 0, 0, 0); // Dec 6, 00:00:00
 
-    // If currently before or within the evening of this date:
-    if (now.getTime() <= specificTarget.getTime() + 6 * 60 * 60 * 1000) {
-      return specificTarget;
-    }
-
-    // Dynamic fallback for any upcoming Sunday at 22:00:
-    const day = now.getDay();
-    const daysToAdd = (7 - day) % 7 || 7;
-    const nextSun = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysToAdd, 22, 0, 0, 0);
-    return nextSun;
+  // If Dec 6 of the current year has already passed, target next year's Dec 6
+  if (targetDate.getTime() <= now.getTime()) {
+    targetDate = new Date(currentYear + 1, 11, 6, 0, 0, 0, 0);
   }
 
-  const targetDate = getTargetDate();
-
-  // Define reference start date (4 days prior for progress bar calculation)
-  const totalDurationDays = 4;
+  // Define reference start date (60 days prior for progress bar calculation)
+  const totalDurationDays = 60;
   const startDate = new Date(targetDate.getTime() - totalDurationDays * 24 * 60 * 60 * 1000);
 
   // DOM Elements - Time display
@@ -341,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
     celebrationBanner.setAttribute('aria-hidden', 'false');
     spawnConfetti(160);
     playCelebrationFanfare();
-    showToast('הספירה הגיעה לסיומה! הדייט במרינה הרצליה מתחיל עכשיו! ⛵🥂💖');
+    showToast('הספירה הגיעה לסיומה! מזל טוב, הדייט שלנו כאן! 🎂🥂💖');
   }
 
   demoCelebrateBtn.addEventListener('click', () => {
@@ -404,11 +394,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Google Calendar Link Setup
-  const eventTitle = encodeURIComponent('דייט לילי במרינה הרצליה ⛵✨');
-  const eventDetails = encodeURIComponent('דייט רומנטי מול היאכטות והבריזה של מרינה הרצליה! יום ראשון ב-22:00 בלילה 🌊🥂');
-  const eventLocation = encodeURIComponent('מרינה הרצליה');
+  const eventTitle = encodeURIComponent('הדייט של יום ההולדת שלך 🌹🎂');
+  const eventDetails = encodeURIComponent('דייט שנקבע מראש במיוחד ליום ההולדת שלך! מתרגש לחגוג איתך, אל תשכחי להתכונן להפתעות ✨');
+  const eventLocation = encodeURIComponent('הדייט המיוחד שלנו');
   const calStart = formatCalDate(targetDate);
-  const calEnd = formatCalDate(new Date(targetDate.getTime() + 3 * 60 * 60 * 1000)); // +3 hours celebration
+  const calEnd = formatCalDate(new Date(targetDate.getTime() + 4 * 60 * 60 * 1000)); // +4 hours celebration
 
   calGoogle.href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${calStart}/${calEnd}&details=${eventDetails}&location=${eventLocation}`;
 
@@ -418,12 +408,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//Marina Herzliya Date//HE',
+      'PRODID:-//Birthday Date 06-12//HE',
       'CALSCALE:GREGORIAN',
       'BEGIN:VEVENT',
-      `SUMMARY:דייט לילי במרינה הרצליה ⛵✨`,
-      `DESCRIPTION:דייט רומנטי במרינה הרצליה ביום ראשון ב-22:00 בלילה!`,
-      `LOCATION:מרינה הרצליה`,
+      `SUMMARY:הדייט של יום ההולדת שלך 🌹🎂`,
+      `DESCRIPTION:דייט מיוחד שנקבע מראש לכבוד יום ההולדת שלך ב-6 בדצמבר!`,
       `DTSTART:${calStart}`,
       `DTEND:${calEnd}`,
       'STATUS:CONFIRMED',
@@ -434,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = 'marina-date.ics';
+    link.download = 'birthday-date-06-12.ics';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -474,8 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'הדייט שלנו במרינה הרצליה | יום ראשון ב-22:00 ⛵',
-          text: 'סופרים לאחור לדייט שלנו ביום ראשון הקרוב ב-22:00 בלילה במרינה הרצליה! 🌊✨',
+          title: 'הדייט שלנו ביום ההולדת שלך | 6 בדצמבר 🌹',
+          text: 'סופרים לאחור לדייט המיוחד שקבענו ליום ההולדת שלך ב-6/12 💖',
           url: window.location.href,
         });
       } catch (err) {
@@ -502,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('birthday_date_wishes', JSON.stringify(wishes));
 
     subscribeStatus.className = 'subscribe-status success';
-    subscribeStatus.textContent = '💖 איזה כיף! הבקשה שלך נשמרה בסוד, אדאג לזה לדייט שלנו במרינה!';
+    subscribeStatus.textContent = '💖 איזה כיף! המשאלה שלך נשמרה בסוד, אדאג לזה לדייט שלנו!';
     subscriberEmail.value = '';
     showToast('הפתק שלך נשלח בהצלחה! 💌');
 
